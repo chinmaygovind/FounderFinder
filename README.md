@@ -1,1 +1,2 @@
 # FounderFinder
+OPENAI_API_KEY=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
