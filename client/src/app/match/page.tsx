@@ -1,40 +1,61 @@
 'use client'
 
-import {useCompletion} from 'ai/react'
-import {Github, Trash} from 'lucide-react'
+import { Github, Trash } from 'lucide-react'
 import Link from 'next/link'
-import {FormEvent, useEffect} from 'react'
+import { FormEvent, useState } from 'react'
 
 import Chat from '@/components/Chat'
-import {Button} from '@/components/ui/button'
-import {Separator} from '@/components/ui/separator'
-import {useMessages} from '@/lib/store'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { useMessages } from '@/lib/store'
 
 const Home = () => {
-  const {messages, setMessages, clearMessages} = useMessages()
-
-  const {input, setInput, handleInputChange, handleSubmit, completion, isLoading} = useCompletion({
-    api: `/api`,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
+  const { messages, setMessages, clearMessages } = useMessages()
+  const [input, setInput] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    if (!input) {
-      e.preventDefault()
-      return
-    }
-    Promise.all([handleSubmit(e)])
+    e.preventDefault()
+    if (!input) return
 
+    // Add the user's message to the messages array
     setMessages('USER', input)
-    setInput('')
-  }
 
-  useEffect(() => {
-    if (!completion || !isLoading) return
-    setMessages('AI', completion)
-  }, [setMessages, completion, isLoading])
+    // Prepare the payload with all messages
+    const payload = {
+      prompt: input,
+      messages: messages.map((msg) => ({
+        role: msg.creator === 'AI' ? 'assistant' : 'user',
+        content: msg.text,
+      })),
+    }
+
+    setIsLoading(true)
+
+    try {
+      // Send the request to the server
+      const response = await fetch('/api', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      if (!response.ok) {
+        console.error('Error:', response.statusText)
+        return
+      }
+
+      const data = await response.json()
+
+      // Update the messages with the AI's response
+      setMessages('AI', data.completion)
+    } catch (error) {
+      console.error('Error:', error)
+    } finally {
+      setIsLoading(false)
+      setInput('')
+    }
+  }
 
   return (
     <div className="z-10 flex h-screen flex-col gap-5 p-5">
@@ -52,14 +73,15 @@ const Home = () => {
       <Chat messages={messages} />
       <Separator />
       <Chat.Input
-        onChange={handleInputChange}
+        onChange={(e) => setInput(e.target.value)}
         value={input}
         onSubmit={onSubmit}
         disabled={isLoading}
       />
       <div
         className="flex cursor-pointer items-center gap-2 text-xs text-red-500"
-        onClick={clearMessages}>
+        onClick={clearMessages}
+      >
         <Trash className="h-4 w-4" /> Clear Chat
       </div>
     </div>
