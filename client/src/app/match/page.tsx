@@ -2,7 +2,7 @@
 
 import { Github, Trash } from 'lucide-react'
 import Link from 'next/link'
-import { FormEvent, useState } from 'react'
+import { FormEvent, useState, useEffect } from 'react'
 
 import Chat from '@/components/Chat'
 import { Button } from '@/components/ui/button'
@@ -14,13 +14,45 @@ const Home = () => {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
+  useEffect(() => {
+    if (messages.length === 0) {
+      setMessages('AI', "Hello! I'm Frankie, an AI chatbot here to assist you. Let's get started. Could you please tell me about your project? Is it a startup, a website, an app, or something else?")
+    }
+  }, [messages.length, setMessages])
+
+  // Initialize an array to store parsed data
+  const [databaseArray, setDatabaseArray] = useState<Array<Record<string, any>>>([])
+
+  const parseDatabaseContent = (content: string) => {
+    const dataFields: Record<string, any> = {}
+  
+    // Use a regular expression to split the content into key-value pairs
+    const regex = /(\w+):\s*([^:]+)(?=\s+\w+:|$)/g
+    let match
+  
+    while ((match = regex.exec(content)) !== null) {
+      const key = match[1]
+      const value = match[2].trim()
+      dataFields[key] = value
+    }
+  
+    // Convert specific fields to appropriate data types
+    dataFields['Technical'] = dataFields['Technical'] === 'True'
+    dataFields['LookingForTechnical'] = dataFields['LookingForTechnical'] === 'True'
+    dataFields['Skills'] = dataFields['Skills']?.split(',').map((s: string) => s.trim())
+    dataFields['LookingForSkills'] = dataFields['LookingForSkills']?.split(',').map((s: string) => s.trim())
+  
+    return dataFields
+  }
+
+  
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!input) return
-
+  
     // Add the user's message to the messages array
     setMessages('USER', input)
-
+  
     // Prepare the payload with all messages
     const payload = {
       prompt: input,
@@ -29,9 +61,9 @@ const Home = () => {
         content: msg.text,
       })),
     }
-
+  
     setIsLoading(true)
-
+  
     try {
       // Send the request to the server
       const response = await fetch('/api', {
@@ -39,16 +71,35 @@ const Home = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
-
+  
       if (!response.ok) {
         console.error('Error:', response.statusText)
         return
       }
-
+  
       const data = await response.json()
-
-      // Update the messages with the AI's response
-      setMessages('AI', data.completion)
+  
+      // Extract the content between {startDatabase} and {endDatabase}
+      const match = data.completion.match(/\{startDatabase\}([\s\S]*?)\{endDatabase\}/)
+  
+      // Remove the content between {startDatabase} and {endDatabase} from the completion
+      let assistantReply = data.completion
+      if (match) {
+        assistantReply = data.completion.replace(match[0], '').trim()
+  
+        const databaseContent = match[1].trim()
+  
+        // Parse the content into key-value pairs
+        const dataFields = parseDatabaseContent(databaseContent)
+  
+        // Store the parsed data in the state array
+        setDatabaseArray((prevArray) => [...prevArray, dataFields])
+  
+        console.log('Parsed data:', dataFields)
+      }
+  
+      // Update the messages with the AI's response (without the parsed content)
+      setMessages('AI', assistantReply)
     } catch (error) {
       console.error('Error:', error)
     } finally {
@@ -56,6 +107,8 @@ const Home = () => {
       setInput('')
     }
   }
+  
+  
 
   return (
     <div className="z-10 flex h-screen flex-col gap-5 p-5">
@@ -82,8 +135,12 @@ const Home = () => {
         className="flex cursor-pointer items-center gap-2 text-xs text-red-500"
         onClick={clearMessages}
       >
-        <Trash className="h-4 w-4" /> Clear Chat
+        <Trash className="h-4 w-4" /> Start Over
       </div>
+      <div className="mt-5">
+      <h2 className="text-lg font-bold">Parsed Data:</h2>
+      <pre>{JSON.stringify(databaseArray, null, 2)}</pre>
+    </div>
     </div>
   )
 }

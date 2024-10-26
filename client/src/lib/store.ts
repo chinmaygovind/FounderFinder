@@ -36,7 +36,7 @@ export const useMessages = create(
           const lastMessage = storedMessages[storedMessages.length - 1]
           // if (!lastMessage) return storedMessages
 
-          if (creator === 'AI' && lastMessage.creator === 'AI') {
+          if (creator === 'AI' && lastMessage?.creator === 'AI') {
             return {
               messages: [...storedMessages.slice(0, -1), {...lastMessage, text: message}],
             }
