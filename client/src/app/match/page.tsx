@@ -13,6 +13,7 @@ const Home = () => {
   const { messages, setMessages, clearMessages } = useMessages()
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [conversationEnded, setConversationEnded] = useState(false)
 
   useEffect(() => {
     if (messages.length === 0) {
@@ -100,6 +101,9 @@ const Home = () => {
   
       // Update the messages with the AI's response (without the parsed content)
       setMessages('AI', assistantReply)
+      if (assistantReply.includes('See you soon!')) {
+        setConversationEnded(true)
+      }
     } catch (error) {
       console.error('Error:', error)
     } finally {
@@ -113,7 +117,7 @@ const Home = () => {
   return (
     <div className="z-10 flex h-screen flex-col gap-5 p-5">
       <header className="flex items-center justify-between border-b px-6 py-3">
-        <h1 className="text-xl font-bold">Chat App</h1>
+        <Link href="/" className="text-xl font-bold text-white-600 hover:text-white-700">FounderFinder</Link>
         <div className="flex items-center gap-3">
           <Link href="https://github.com/soutot/nextjs-rag-trulens" passHref={true}>
             <Button variant="outline">
@@ -130,6 +134,7 @@ const Home = () => {
         value={input}
         onSubmit={onSubmit}
         disabled={isLoading}
+        conversationEnded={conversationEnded}
       />
       <div
         className="flex cursor-pointer items-center gap-2 text-xs text-red-500"
