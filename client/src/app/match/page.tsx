@@ -1,6 +1,6 @@
 'use client'
 
-import { Github, Trash } from 'lucide-react'
+import { Github, HomeIcon, Trash } from 'lucide-react'
 import Link from 'next/link'
 import { FormEvent, useState, useEffect } from 'react'
 
@@ -119,10 +119,10 @@ const Home = () => {
       <header className="flex items-center justify-between border-b px-6 py-3">
         <Link href="/" className="text-xl font-bold text-white-600 hover:text-white-700">FounderFinder</Link>
         <div className="flex items-center gap-3">
-          <Link href="https://github.com/soutot/nextjs-rag-trulens" passHref={true}>
+          <Link href="/" passHref={true}>
             <Button variant="outline">
-              <Github className="mr-2 h-4 w-4" />
-              Github
+              <HomeIcon className="mr-2 h-4 w-4" />
+              Back to Home
             </Button>
           </Link>
         </div>
