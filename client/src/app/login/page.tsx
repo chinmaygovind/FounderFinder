@@ -4,18 +4,31 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useRouter } from 'next/navigation'
 import { Separator } from '@/components/ui/separator'
 
+import axios from 'axios';
 export default function Login() {
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
+  const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault()
     // Handle login logic here
     console.log('Email:', email)
     console.log('Password:', password)
-  }
+    e.preventDefault();
+    
+    try {
+      const response = await axios.post('http://localhost:5000/login', { email, password });
+      router.push("/match")
+      // Here you would typically store the token in localStorage or a state management solution
+      localStorage.setItem('token', response.data.token);
+    } catch (error) {
+      alert('Login failed. Please check your credentials.');
+    }
+  };
 
   return (
     <div className="z-10 flex h-screen flex-col gap-5 p-5">
@@ -56,13 +69,13 @@ export default function Login() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" onSubmit={(e) => handleSubmit(e)}>
               Login
             </Button>
           </form>
           <p className="text-gray-600 mt-4 text-center">
             New user?{' '}
-            <Link href="/login" className="text-blue-500 hover:underline">Sign up</Link>
+            <Link href="/signup" className="text-blue-500 hover:underline">Sign up</Link>
           </p>
         </div>
       </main>

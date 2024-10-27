@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
+import axios from 'axios';
 
 export default function Signup() {
   const [name, setName] = useState<string>('')
@@ -13,15 +14,21 @@ export default function Signup() {
   const [password, setPassword] = useState<string>('')
   const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault()
     // Handle signup logic here
     console.log('Name:', name)
     console.log('Email:', email)
     console.log('Password:', password)
+    e.preventDefault();
+    try {
+      const response = await axios.post('http://localhost:5000/signup', { email, password });
+      alert(response.data.message);
+      router.push("/login")
+    } catch (error) {
+      alert('An error occurred during signup');
+    }
 
-    // Redirect to /match page after account creation
-    router.push('/match')
   }
 
   return (
@@ -77,7 +84,7 @@ export default function Signup() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" onSubmit={(e) => handleSubmit(e)}>
               Sign Up
             </Button>
           </form>

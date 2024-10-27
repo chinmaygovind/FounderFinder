@@ -8,6 +8,7 @@ import Chat from '@/components/Chat'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useMessages } from '@/lib/store'
+import axios from 'axios'
 
 const Home = () => {
   const { messages, setMessages, clearMessages } = useMessages()
@@ -97,6 +98,22 @@ const Home = () => {
         setDatabaseArray((prevArray) => [...prevArray, dataFields])
   
         console.log('Parsed data:', dataFields)
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.post('http://localhost:5000/update_profile', 
+            { profileData: [dataFields] },
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+          alert(response.data.message);
+        } catch (error) {
+          console.log(error)
+          alert('An error occurred while updating the profile');
+        }
       }
   
       // Update the messages with the AI's response (without the parsed content)
