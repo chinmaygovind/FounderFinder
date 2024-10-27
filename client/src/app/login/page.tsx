@@ -12,18 +12,18 @@ export default function Login() {
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const router = useRouter()
-
-  const handleSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
+  
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // Handle login logic here
+    
     console.log('Email:', email)
     console.log('Password:', password)
-    e.preventDefault();
-    
+
+
     try {
       const response = await axios.post('http://localhost:5000/login', { email, password });
       router.push("/match")
-      // Here you would typically store the token in localStorage or a state management solution
+
       localStorage.setItem('token', response.data.token);
     } catch (error) {
       alert('Login failed. Please check your credentials.');
@@ -34,8 +34,6 @@ export default function Login() {
     <div className="z-10 flex h-screen flex-col gap-5 p-5">
       <header className="flex items-center justify-between border-b px-6 py-3">
         <Link href="/" className="text-xl font-bold text-black-600 hover:text-black-700">FounderFinder</Link>
-
-        {/* Placeholder for additional header items if needed */}
       </header>
       <main className="flex flex-1 flex-col items-center justify-center overflow-y-scroll bg-zinc-50 p-5 dark:bg-zinc-950">
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
@@ -69,7 +67,7 @@ export default function Login() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" onSubmit={(e) => handleSubmit(e)}>
+            <Button type="submit" className="w-full">
               Login
             </Button>
           </form>

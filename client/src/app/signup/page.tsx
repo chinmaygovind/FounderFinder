@@ -8,21 +8,22 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import axios from 'axios';
 
+
 export default function Signup() {
   const [name, setName] = useState<string>('')
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // Handle signup logic here
+
     console.log('Name:', name)
     console.log('Email:', email)
     console.log('Password:', password)
-    e.preventDefault();
+
     try {
-      const response = await axios.post('http://localhost:5000/signup', { email, password });
+      const response = await axios.post('http://localhost:5000/signup', { name, email, password });
       alert(response.data.message);
       router.push("/login")
     } catch (error) {
@@ -34,9 +35,9 @@ export default function Signup() {
   return (
     <div className="z-10 flex h-screen flex-col gap-5 p-5">
       <header className="flex items-center justify-between border-b px-6 py-3">
-      <Link href="/" className="text-xl font-bold text-black-600 hover:text-black-700">FounderFinder</Link>
+        <Link href="/" className="text-xl font-bold text-black-600 hover:text-black-700">FounderFinder</Link>
 
-        {/* Placeholder for additional header items if needed */}
+        
       </header>
       <main className="flex flex-1 flex-col items-center justify-center overflow-y-scroll bg-zinc-50 p-5 dark:bg-zinc-950">
         <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
@@ -84,7 +85,7 @@ export default function Signup() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" onSubmit={(e) => handleSubmit(e)}>
+            <Button type="submit" className="w-full">
               Sign Up
             </Button>
           </form>

@@ -32,7 +32,7 @@ def add_sample_profiles():
             "Idea": "Feet Finder"
         },
         {
-            "School": "MIT",
+            "School": "Engineering",
             "Skills": ["Machine Learning", "Data Science"],
             "Technical": True,
             "LookingForSchool": "Any",
@@ -41,7 +41,7 @@ def add_sample_profiles():
             "Idea": "AI-powered Personal Assistant"
         },
         {
-            "School": "Stanford",
+            "School": "Nursing",
             "Skills": ["UX Design", "Product Management"],
             "Technical": False,
             "LookingForSchool": "Any",
@@ -84,7 +84,7 @@ def get_chatgpt_response(prompt: str) -> str:
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant that matches potential co-founders based on their profiles."},
+            {"role": "system", "content": "You are a founder matcher that matches potential co-founders based on their profiles. Select from the table the profiles that best suits the user, and debating with yourself come to a decision of the top 4 matches. after deciding, always write this:<1>emailofuser</1><2>emailofuser</2><3>emailofuser</3>"},
             {"role": "user", "content": prompt}
         ]
     )
